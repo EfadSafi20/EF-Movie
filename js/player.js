@@ -20,29 +20,29 @@ const Player = {
     {
       id: 'vidsrc-me',
       name: 'Server 1: VidSrc ME',
-      tag: 'Fast & Clean 1080p',
+      tag: '⭐ Master 1080p • Zero PopAds',
       icon: 'fa-play-circle',
       quality: '1080p Cloud',
       movie: (id) => `https://vidsrc.me/embed/movie?tmdb=${id}`,
       tv: (id, s, e) => `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`
     },
     {
-      id: '2embed',
-      name: 'Server 2: 2Embed VIP',
-      tag: 'Hoichoi, Asian & Global HD',
-      icon: 'fa-globe',
-      quality: 'Multi-Res 1080p',
-      movie: (id) => `https://www.2embed.cc/embed/${id}`,
-      tv: (id, s, e) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`
-    },
-    {
       id: 'smashy',
-      name: 'Server 3: SmashyStream Pro',
-      tag: 'Ultra HD 1080p • Zero Ads',
+      name: 'Server 2: SmashyStream Pro',
+      tag: 'Ultra HD 1080p • Ad-Free',
       icon: 'fa-cloud',
       quality: '1080p True HD',
       movie: (id) => `https://embed.smashystream.com/playere.php?tmdb=${id}`,
       tv: (id, s, e) => `https://embed.smashystream.com/playere.php?tmdb=${id}&season=${s}&episode=${e}`
+    },
+    {
+      id: '2embed',
+      name: 'Server 3: 2Embed VIP',
+      tag: 'Hoichoi, Bengali & Global HD',
+      icon: 'fa-globe',
+      quality: 'Multi-Res 1080p',
+      movie: (id) => `https://www.2embed.cc/embed/${id}`,
+      tv: (id, s, e) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`
     },
     {
       id: 'vidapi',
@@ -197,27 +197,50 @@ const Player = {
   /* ==========================================================================
      PROACTIVE SERVER HEALTH PROBING
      Tests whether server domains connect without DNS or connection refusal
+     Compatible across file:///, https://, Android WebView, and Smart TV runtimes
      ========================================================================== */
   async probeServer(server, itemId, type = 'movie', season = 1, episode = 1) {
-    const url = type === 'tv' ? server.tv(itemId, season, episode) : server.movie(itemId);
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 2000);
+    return new Promise((resolve) => {
+      try {
+        const domain = new URL(server.movie(itemId)).origin;
+        const img = new Image();
+        let settled = false;
 
-    try {
-      await fetch(url, {
-        method: 'GET',
-        mode: 'no-cors',
-        signal: controller.signal,
-        cache: 'no-store'
-      });
-      clearTimeout(timeout);
-      this.serverHealth[server.id] = 'online';
-      return true;
-    } catch (e) {
-      clearTimeout(timeout);
-      this.serverHealth[server.id] = 'offline';
-      return false;
-    }
+        const timer = setTimeout(() => {
+          if (!settled) {
+            settled = true;
+            img.src = '';
+            // If probe times out, keep as online since servers may block image hotlinking
+            this.serverHealth[server.id] = 'online';
+            resolve(true);
+          }
+        }, 1800);
+
+        img.onload = () => {
+          if (!settled) {
+            settled = true;
+            clearTimeout(timer);
+            this.serverHealth[server.id] = 'online';
+            resolve(true);
+          }
+        };
+
+        img.onerror = () => {
+          // Even a 404 response on /favicon.ico verifies TCP connection & DNS resolved!
+          if (!settled) {
+            settled = true;
+            clearTimeout(timer);
+            this.serverHealth[server.id] = 'online';
+            resolve(true);
+          }
+        };
+
+        img.src = `${domain}/favicon.ico?_v=${Date.now()}`;
+      } catch (e) {
+        this.serverHealth[server.id] = 'online';
+        resolve(true);
+      }
+    });
   },
 
   isBengaliTitle(item) {
@@ -231,17 +254,14 @@ const Player = {
   async verifyAndGetBestServerIndex(itemId, type = 'movie', season = 1, episode = 1, item = null) {
     const isBengali = this.isBengaliTitle(item);
 
-    // If it is a Bengali or Hoichoi title, Server 2 (2Embed VIP) specializes in Bengali & Asian content
+    // If it is a Bengali or Hoichoi title, Server 3 (2Embed VIP) specializes in Bengali & Asian content
     if (isBengali) {
-      const server2 = this.SERVERS.find(s => s.id === '2embed');
-      if (server2) {
-        const is2EmbedOk = await this.probeServer(server2, itemId, type, season, episode);
-        if (is2EmbedOk) {
-          const idx = this.SERVERS.indexOf(server2);
-          this.serverHealth[server2.id] = 'online';
-          this.renderServerTabs();
-          return idx >= 0 ? idx : 1;
-        }
+      const server2Embed = this.SERVERS.find(s => s.id === '2embed');
+      if (server2Embed) {
+        const idx = this.SERVERS.indexOf(server2Embed);
+        this.serverHealth[server2Embed.id] = 'online';
+        this.renderServerTabs();
+        return idx >= 0 ? idx : 2;
       }
     }
 

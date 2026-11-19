@@ -243,16 +243,31 @@ const TVNav = {
     }
 
     if (shouldScroll) {
-      // Determine if within a horizontal scroll container (shelves, cast row)
       const isHorizontalShelf = element.closest('.media-shelf, .details-cast, .details-similar, .platform-grid');
       const insideModal = element.closest('.modal-overlay, .details-modal, .player-modal');
 
-      // Use 'nearest' inline to prevent horizontal modal blowout or sideways displacement
-      element.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-        inline: isHorizontalShelf && !insideModal ? 'center' : 'nearest'
-      });
+      if (insideModal) {
+        // If navigating inside a horizontal list inside the modal (e.g. cast or recommendations row)
+        const modalHorizontalRow = element.closest('.details-cast, .details-similar');
+        if (modalHorizontalRow) {
+          const rowRect = modalHorizontalRow.getBoundingClientRect();
+          const elRect = element.getBoundingClientRect();
+          const delta = elRect.left - rowRect.left - (rowRect.width / 2) + (elRect.width / 2);
+          modalHorizontalRow.scrollBy({ left: delta, behavior: 'smooth' });
+        }
+        // Strictly guarantee modal and overlay horizontal scroll position is locked to 0
+        const overlay = element.closest('.modal-overlay, .player-modal');
+        if (overlay && overlay.scrollLeft !== 0) overlay.scrollLeft = 0;
+        const inner = element.closest('.details-modal');
+        if (inner && inner.scrollLeft !== 0) inner.scrollLeft = 0;
+      } else {
+        // Standard page navigation
+        element.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: isHorizontalShelf ? 'center' : 'nearest'
+        });
+      }
     }
   },
 
@@ -281,18 +296,19 @@ const TVNav = {
   },
 
   updateFocusables() {
-    // Prevent internal card action buttons from stealing TV focus
-    document.querySelectorAll('.media-card .card-action-btn, .media-card .card-quick-actions, .media-card button').forEach(el => {
+    // Prevent internal card action buttons and modal close buttons from stealing TV focus
+    document.querySelectorAll('.media-card .card-action-btn, .media-card .card-quick-actions, .media-card button, .modal-close-btn').forEach(el => {
       el.classList.remove('tv-focusable');
       el.removeAttribute('tabindex');
     });
 
-    // Automatically flag interactive cards, buttons, tabs, links as tv-focusable
+    // Automatically flag interactive cards, buttons, tabs, links as tv-focusable (never modal-close-btn)
     const elements = document.querySelectorAll(
-      '.media-card, .shelf-btn, .nav-link, .nav-btn, .btn, .server-tab, .episode-card, .filter-chip, .platform-pill, .modal-close, .spotlight-btn, .quick-tab, .season-select, .catalog-filter-btn'
+      '.media-card, .shelf-btn, .nav-link, .nav-btn, .btn, .server-tab, .episode-card, .filter-chip, .platform-pill, .spotlight-btn, .quick-tab, .season-select, .catalog-filter-btn'
     );
     elements.forEach(el => {
       if (el.closest('.media-card') && el !== el.closest('.media-card')) return;
+      if (el.classList.contains('modal-close-btn')) return;
       if (!el.classList.contains('tv-focusable')) {
         el.classList.add('tv-focusable');
         el.setAttribute('tabindex', '0');
@@ -312,7 +328,13 @@ const TVNav = {
     if (innerModal) {
       innerModal.scrollTop = 0;
       innerModal.scrollLeft = 0;
+      innerModal.addEventListener('scroll', () => {
+        if (innerModal.scrollLeft !== 0) innerModal.scrollLeft = 0;
+      }, { passive: true });
     }
+    modalElement.addEventListener('scroll', () => {
+      if (modalElement.scrollLeft !== 0) modalElement.scrollLeft = 0;
+    }, { passive: true });
     if (window.scrollX > 0) {
       window.scrollTo(0, window.scrollY);
     }

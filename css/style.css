@@ -975,6 +975,8 @@ img {
   display: none;
   flex-direction: column;
   overflow-y: auto;
+  overflow-x: clip !important;
+  overscroll-behavior-x: contain;
 }
 .player-modal.active {
   display: flex;
@@ -1349,7 +1351,8 @@ img {
   display: none;
   padding: 24px 16px;
   overflow-y: auto;
-  overflow-x: hidden !important;
+  overflow-x: clip !important;
+  overscroll-behavior-x: contain;
   box-sizing: border-box;
 }
 .modal-overlay.active {
@@ -1366,8 +1369,10 @@ img {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
-  overflow-x: hidden !important;
+  overflow-x: clip !important;
   overflow-y: visible;
+  overscroll-behavior-x: contain;
+  contain: layout;
   box-shadow: var(--shadow-card);
   margin: 30px auto;
   box-sizing: border-box;
@@ -1378,7 +1383,8 @@ img {
   max-width: 600px;
   width: min(94vw, 600px);
   margin: auto;
-  overflow-x: hidden !important;
+  overflow-x: clip !important;
+  overscroll-behavior-x: contain;
 }
 
 .details-hero {
@@ -1421,7 +1427,7 @@ img {
   box-sizing: border-box;
   width: 100%;
   max-width: 100%;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 @media (max-width: 768px) {

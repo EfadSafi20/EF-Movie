@@ -1282,10 +1282,12 @@ const Modals = {
     // Strict Scroll Reset to prevent sideways shift or displacement
     modal.scrollTop = 0;
     modal.scrollLeft = 0;
+    modal.onscroll = () => { if (modal.scrollLeft !== 0) modal.scrollLeft = 0; };
     const inner = modal.querySelector('.details-modal');
     if (inner) {
       inner.scrollTop = 0;
       inner.scrollLeft = 0;
+      inner.onscroll = () => { if (inner.scrollLeft !== 0) inner.scrollLeft = 0; };
     }
 
     // Reset view
@@ -1412,13 +1414,15 @@ const Modals = {
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
 
-    // Strict Scroll Reset
+    // Strict Scroll Reset to guarantee quick modal is perfectly centered
     modal.scrollTop = 0;
     modal.scrollLeft = 0;
+    modal.onscroll = () => { if (modal.scrollLeft !== 0) modal.scrollLeft = 0; };
     const inner = modal.querySelector('.details-modal');
     if (inner) {
       inner.scrollTop = 0;
       inner.scrollLeft = 0;
+      inner.onscroll = () => { if (inner.scrollLeft !== 0) inner.scrollLeft = 0; };
     }
 
     try {
