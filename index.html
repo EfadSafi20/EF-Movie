@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="theme-color" content="#06080c"/>
+  <meta name="description" content="EF Movie — Stream movies, TV series, and live television in 4K Ultra HD. Optimized for Smart TVs, desktops, and mobile devices."/>
+  
+  <title>EF Movie — Ultra 4K Cinema & TV Streaming</title>
+
+  <!-- PWA Web App Manifest & Favicon -->
+  <link rel="manifest" href="./manifest.json"/>
+  <link rel="icon" type="image/svg+xml" href="./assets/logo.svg"/>
+
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+
+  <!-- Core Stylesheet -->
+  <link rel="stylesheet" href="./css/style.css"/>
+
+  <!-- Web-Based Anti-Popup & Ad Shield (Loads First) -->
+  <script src="./js/adblocker.js"></script>
+</head>
+<body>
+
+  <!-- Top Real-Time Loading Progress Bar -->
+  <div id="top-progress" class="top-progress"></div>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="toast">
+    <i class="fas fa-circle-info"></i>
+    <span id="toast-text">Welcome to EF Movie</span>
+  </div>
+
+  <!-- Header & Navigation -->
+  <header class="header">
+    <div class="header-container">
+      
+      <!-- Brand Logo -->
+      <div class="brand tv-focusable" onclick="App.switchTab('home')">
+        <img class="brand-logo" src="./assets/logo.svg" alt="EF Movie Logo"/>
+        <span class="brand-name">EF MOVIE</span>
+        <span class="brand-badge">ULTRA</span>
+      </div>
+
+      <!-- Desktop Nav Links -->
+      <nav class="nav-links">
+        <a class="nav-link active tv-focusable" data-tab="home" href="#"><i class="fas fa-house"></i> Home</a>
+        <a class="nav-link tv-focusable" data-tab="movies" href="#"><i class="fas fa-film"></i> Movies</a>
+        <a class="nav-link tv-focusable" data-tab="tv" href="#"><i class="fas fa-tv"></i> TV Series</a>
+        <a class="nav-link tv-focusable" data-tab="livetv" href="#"><i class="fas fa-broadcast-tower"></i> Live TV</a>
+        <a class="nav-link tv-focusable" data-tab="watchlist" href="#"><i class="fas fa-heart"></i> Watchlist</a>
+        <a class="nav-link tv-focusable" data-tab="history" href="#"><i class="fas fa-clock-rotate-left"></i> History</a>
+      </nav>
+
+      <!-- Header Actions: Search & TV Mode -->
+      <div class="header-actions">
+        
+        <!-- Live Instant Search -->
+        <div class="search-box-wrap">
+          <div class="search-box tv-focusable">
+            <i class="fas fa-search"></i>
+            <input type="text" id="search-input" class="search-input" placeholder="Search movies, series, anime..." autocomplete="off"/>
+            <button id="voice-search-btn" class="voice-btn tv-focusable" title="Voice Search (Microphone)">
+              <i class="fas fa-microphone"></i>
+            </button>
+          </div>
+          <!-- Predictive Results Dropdown -->
+          <div id="search-dropdown" class="search-dropdown"></div>
+        </div>
+
+        <!-- TV 10-Foot Mode Switcher Button -->
+        <button id="tv-mode-toggle-btn" class="tv-mode-btn tv-focusable" onclick="TVNav.toggleTVMode()" title="Toggle Smart TV 10-Foot UI Mode">
+          <i class="fas fa-tv"></i>
+          <span class="tv-mode-text">TV Mode</span>
+        </button>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN HOME VIEW (Hero Billboard + OTT Platforms + Content Shelves) -->
+  <main id="main-content">
+    
+    <!-- Hero Spotlight Billboard Carousel -->
+    <section class="spotlight">
+      <div id="spotlight-bg" class="spotlight-bg"></div>
+      <div class="spotlight-gradient-x"></div>
+      <div class="spotlight-gradient-y"></div>
+
+      <div class="spotlight-content">
+        <div id="spotlight-meta" class="spotlight-meta">
+          <!-- Dynamic Badges -->
+        </div>
+        <h1 id="spotlight-title" class="spotlight-title">Loading Featured Blockbusters...</h1>
+        <p id="spotlight-desc" class="spotlight-desc">Experience uninterrupted 4K cinema with multi-server instant streaming.</p>
+
+        <div class="spotlight-actions">
+          <button id="spotlight-play-btn" class="btn btn-primary tv-focusable">
+            <i class="fas fa-play"></i> Watch Now
+          </button>
+          <button id="spotlight-info-btn" class="btn btn-secondary tv-focusable">
+            <i class="fas fa-circle-info"></i> More Details
+          </button>
+          <button id="spotlight-trailer-btn" class="btn btn-outline tv-focusable">
+            <i class="fas fa-video"></i> 4K Trailer
+          </button>
+        </div>
+      </div>
+
+      <!-- Spotlight Carousel Dots -->
+      <div id="spotlight-dots" class="spotlight-dots"></div>
+    </section>
+
+    <!-- OTT Streaming Platforms Row -->
+    <section class="platforms-section">
+      <div id="platforms-row" class="platforms-row">
+        <!-- Rendered dynamically (Netflix, Disney+, Prime Video, Apple TV+, etc.) -->
+      </div>
+    </section>
+
+    <!-- Horizontal Netflix Shelves Container -->
+    <section class="shelves-container">
+      
+      <!-- Continue Watching (Watch History) -->
+      <div id="shelf-continue-wrapper" class="shelf-wrapper" style="display: none;">
+        <div class="shelf-header">
+          <h2 class="shelf-title"><i class="fas fa-rotate-left"></i> Continue Watching</h2>
+          <div class="shelf-controls">
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-continue-watching', 'left')"><i class="fas fa-chevron-left"></i></button>
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-continue-watching', 'right')"><i class="fas fa-chevron-right"></i></button>
+          </div>
+        </div>
+        <div id="shelf-continue-watching" class="shelf-row"></div>
+      </div>
+
+      <!-- Trending Blockbusters -->
+      <div class="shelf-wrapper">
+        <div class="shelf-header">
+          <h2 class="shelf-title"><i class="fas fa-fire"></i> Trending Blockbusters</h2>
+          <div class="shelf-controls">
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-trending', 'left')"><i class="fas fa-chevron-left"></i></button>
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-trending', 'right')"><i class="fas fa-chevron-right"></i></button>
+          </div>
+        </div>
+        <div id="shelf-trending" class="shelf-row"></div>
+      </div>
+
+      <!-- In Theaters & Latest Box Office -->
+      <div class="shelf-wrapper">
+        <div class="shelf-header">
+          <h2 class="shelf-title"><i class="fas fa-ticket"></i> In Theaters & Latest Releases</h2>
+          <div class="shelf-controls">
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-now-playing', 'left')"><i class="fas fa-chevron-left"></i></button>
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-now-playing', 'right')"><i class="fas fa-chevron-right"></i></button>
+          </div>
+        </div>
+        <div id="shelf-now-playing" class="shelf-row"></div>
+      </div>
+
+      <!-- Binge-Worthy TV Series -->
+      <div class="shelf-wrapper">
+        <div class="shelf-header">
+          <h2 class="shelf-title"><i class="fas fa-tv"></i> Binge-Worthy TV Series</h2>
+          <div class="shelf-controls">
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-popular-tv', 'left')"><i class="fas fa-chevron-left"></i></button>
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-popular-tv', 'right')"><i class="fas fa-chevron-right"></i></button>
+          </div>
+        </div>
+        <div id="shelf-popular-tv" class="shelf-row"></div>
+      </div>
+
+      <!-- Trending TV Shows Right Now -->
+      <div class="shelf-wrapper">
+        <div class="shelf-header">
+          <h2 class="shelf-title"><i class="fas fa-chart-line"></i> Trending TV Shows This Week</h2>
+          <div class="shelf-controls">
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-trending-tv', 'left')"><i class="fas fa-chevron-left"></i></button>
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-trending-tv', 'right')"><i class="fas fa-chevron-right"></i></button>
+          </div>
+        </div>
+        <div id="shelf-trending-tv" class="shelf-row"></div>
+      </div>
+
+      <!-- Popular Movies Worldwide -->
+      <div class="shelf-wrapper">
+        <div class="shelf-header">
+          <h2 class="shelf-title"><i class="fas fa-film"></i> Popular Movies Worldwide</h2>
+          <div class="shelf-controls">
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-popular-movies', 'left')"><i class="fas fa-chevron-left"></i></button>
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-popular-movies', 'right')"><i class="fas fa-chevron-right"></i></button>
+          </div>
+        </div>
+        <div id="shelf-popular-movies" class="shelf-row"></div>
+      </div>
+
+      <!-- All-Time Greatest TV Masterpieces -->
+      <div class="shelf-wrapper">
+        <div class="shelf-header">
+          <h2 class="shelf-title"><i class="fas fa-crown"></i> Greatest TV Series of All Time (IMDb 8.5+)</h2>
+          <div class="shelf-controls">
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-top-tv', 'left')"><i class="fas fa-chevron-left"></i></button>
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-top-tv', 'right')"><i class="fas fa-chevron-right"></i></button>
+          </div>
+        </div>
+        <div id="shelf-top-tv" class="shelf-row"></div>
+      </div>
+
+      <!-- Top Rated Masterpiece Movies -->
+      <div class="shelf-wrapper">
+        <div class="shelf-header">
+          <h2 class="shelf-title"><i class="fas fa-star"></i> Top Rated Movie Masterpieces</h2>
+          <div class="shelf-controls">
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-top-rated', 'left')"><i class="fas fa-chevron-left"></i></button>
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-top-rated', 'right')"><i class="fas fa-chevron-right"></i></button>
+          </div>
+        </div>
+        <div id="shelf-top-rated" class="shelf-row"></div>
+      </div>
+
+      <!-- Korean Dramas & Asian Hits -->
+      <div class="shelf-wrapper">
+        <div class="shelf-header">
+          <h2 class="shelf-title"><i class="fas fa-heart-pulse"></i> Korean Dramas & Asian Hits (K-Drama)</h2>
+          <div class="shelf-controls">
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-kdrama', 'left')"><i class="fas fa-chevron-left"></i></button>
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-kdrama', 'right')"><i class="fas fa-chevron-right"></i></button>
+          </div>
+        </div>
+        <div id="shelf-kdrama" class="shelf-row"></div>
+      </div>
+
+      <!-- Hoichoi & Bengali Cinema & Series -->
+      <div class="shelf-wrapper">
+        <div class="shelf-header">
+          <h2 class="shelf-title"><i class="fas fa-clapperboard"></i> Hoichoi &amp; Bengali Cinema Hits</h2>
+          <div class="shelf-controls">
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-hoichoi', 'left')"><i class="fas fa-chevron-left"></i></button>
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-hoichoi', 'right')"><i class="fas fa-chevron-right"></i></button>
+          </div>
+        </div>
+        <div id="shelf-hoichoi" class="shelf-row"></div>
+      </div>
+
+      <!-- Action & Adventure TV Shows -->
+      <div class="shelf-wrapper">
+        <div class="shelf-header">
+          <h2 class="shelf-title"><i class="fas fa-shield-halved"></i> Action & Adventure TV Series</h2>
+          <div class="shelf-controls">
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-action-tv', 'left')"><i class="fas fa-chevron-left"></i></button>
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-action-tv', 'right')"><i class="fas fa-chevron-right"></i></button>
+          </div>
+        </div>
+        <div id="shelf-action-tv" class="shelf-row"></div>
+      </div>
+
+      <!-- Action & Adrenaline Movies -->
+      <div class="shelf-wrapper">
+        <div class="shelf-header">
+          <h2 class="shelf-title"><i class="fas fa-gun"></i> Action & Adrenaline Movies</h2>
+          <div class="shelf-controls">
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-action', 'left')"><i class="fas fa-chevron-left"></i></button>
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-action', 'right')"><i class="fas fa-chevron-right"></i></button>
+          </div>
+        </div>
+        <div id="shelf-action" class="shelf-row"></div>
+      </div>
+
+      <!-- Sci-Fi & Fantasy TV Series -->
+      <div class="shelf-wrapper">
+        <div class="shelf-header">
+          <h2 class="shelf-title"><i class="fas fa-ring"></i> Sci-Fi & Fantasy TV Series</h2>
+          <div class="shelf-controls">
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-scifi-tv', 'left')"><i class="fas fa-chevron-left"></i></button>
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-scifi-tv', 'right')"><i class="fas fa-chevron-right"></i></button>
+          </div>
+        </div>
+        <div id="shelf-scifi-tv" class="shelf-row"></div>
+      </div>
+
+      <!-- Sci-Fi & Cyberpunk Movies -->
+      <div class="shelf-wrapper">
+        <div class="shelf-header">
+          <h2 class="shelf-title"><i class="fas fa-rocket"></i> Sci-Fi & Cyberpunk Movies</h2>
+          <div class="shelf-controls">
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-scifi', 'left')"><i class="fas fa-chevron-left"></i></button>
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-scifi', 'right')"><i class="fas fa-chevron-right"></i></button>
+          </div>
+        </div>
+        <div id="shelf-scifi" class="shelf-row"></div>
+      </div>
+
+      <!-- Crime, Heist & Mystery Series -->
+      <div class="shelf-wrapper">
+        <div class="shelf-header">
+          <h2 class="shelf-title"><i class="fas fa-mask"></i> Crime, Heist & Mystery TV Series</h2>
+          <div class="shelf-controls">
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-crime-tv', 'left')"><i class="fas fa-chevron-left"></i></button>
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-crime-tv', 'right')"><i class="fas fa-chevron-right"></i></button>
+          </div>
+        </div>
+        <div id="shelf-crime-tv" class="shelf-row"></div>
+      </div>
+
+      <!-- Anime & Japanese Animation -->
+      <div class="shelf-wrapper">
+        <div class="shelf-header">
+          <h2 class="shelf-title"><i class="fas fa-wand-magic-sparkles"></i> Anime & Japanese Animation</h2>
+          <div class="shelf-controls">
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-anime', 'left')"><i class="fas fa-chevron-left"></i></button>
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-anime', 'right')"><i class="fas fa-chevron-right"></i></button>
+          </div>
+        </div>
+        <div id="shelf-anime" class="shelf-row"></div>
+      </div>
+
+      <!-- Spine-Chilling Horror -->
+      <div class="shelf-wrapper">
+        <div class="shelf-header">
+          <h2 class="shelf-title"><i class="fas fa-ghost"></i> Spine-Chilling Horror & Thrillers</h2>
+          <div class="shelf-controls">
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-horror', 'left')"><i class="fas fa-chevron-left"></i></button>
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-horror', 'right')"><i class="fas fa-chevron-right"></i></button>
+          </div>
+        </div>
+        <div id="shelf-horror" class="shelf-row"></div>
+      </div>
+
+      <!-- Comedy & Feel-Good Hits -->
+      <div class="shelf-wrapper">
+        <div class="shelf-header">
+          <h2 class="shelf-title"><i class="fas fa-face-laugh-squint"></i> Comedy & Feel-Good Hits</h2>
+          <div class="shelf-controls">
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-comedy', 'left')"><i class="fas fa-chevron-left"></i></button>
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-comedy', 'right')"><i class="fas fa-chevron-right"></i></button>
+          </div>
+        </div>
+        <div id="shelf-comedy" class="shelf-row"></div>
+      </div>
+
+      <!-- Upcoming Anticipated Releases -->
+      <div class="shelf-wrapper">
+        <div class="shelf-header">
+          <h2 class="shelf-title"><i class="fas fa-hourglass-half"></i> Upcoming Anticipated Releases</h2>
+          <div class="shelf-controls">
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-upcoming', 'left')"><i class="fas fa-chevron-left"></i></button>
+            <button class="shelf-btn tv-focusable" onclick="App.scrollShelf('shelf-upcoming', 'right')"><i class="fas fa-chevron-right"></i></button>
+          </div>
+        </div>
+        <div id="shelf-upcoming" class="shelf-row"></div>
+      </div>
+
+    </section>
+
+    <!-- EXPLORE ENDLESS 4K COLLECTION (HOMEPAGE INFINITE CATALOG) -->
+    <section class="home-catalog-section">
+      <div class="home-catalog-header">
+        <div>
+          <h2 class="home-catalog-title"><i class="fas fa-layer-group"></i> Explore Endless 4K Collection</h2>
+          <p class="home-catalog-subtitle">Over 10,000+ Movies & TV Series available in Ultra HD & 4K Cinema</p>
+        </div>
+        <div class="home-catalog-filters">
+          <button class="catalog-filter-btn active tv-focusable" onclick="App.setHomeCatalogFilter('trending', this)">🔥 All Trending</button>
+          <button class="catalog-filter-btn tv-focusable" onclick="App.setHomeCatalogFilter('movies', this)">🎬 Movies</button>
+          <button class="catalog-filter-btn tv-focusable" onclick="App.setHomeCatalogFilter('tv', this)">📺 TV Series</button>
+          <button class="catalog-filter-btn tv-focusable" onclick="App.setHomeCatalogFilter('top_rated', this)">⭐ Top Rated</button>
+          <button class="catalog-filter-btn tv-focusable" onclick="App.setHomeCatalogFilter('action', this)">💥 Action</button>
+          <button class="catalog-filter-btn tv-focusable" onclick="App.setHomeCatalogFilter('scifi', this)">🚀 Sci-Fi</button>
+          <button class="catalog-filter-btn tv-focusable" onclick="App.setHomeCatalogFilter('kdrama', this)">🌸 K-Drama & Anime</button>
+        </div>
+      </div>
+      <div id="home-catalog-grid" class="grid-view-container">
+        <!-- Rendered dynamically with 40+ cards -->
+      </div>
+      <div id="home-infinite-loader" class="infinite-scroll-loader">
+        <div class="infinite-spinner"></div>
+        <span>Discovering more 4K titles...</span>
+      </div>
+    </section>
+  </main>
+
+  <!-- CATALOG GRID VIEW (Movies, Series, Live TV, Watchlist, Search Results) -->
+  <section id="grid-view-section" class="grid-view-section" style="display: none;">
+    <div class="grid-view-header">
+      <h2 id="grid-view-title" class="grid-view-title">Movies Catalog</h2>
+    </div>
+    <div id="grid-view-container" class="grid-view-container">
+      <!-- Cards rendered dynamically -->
+    </div>
+    <div id="grid-infinite-loader" class="infinite-scroll-loader">
+      <div class="infinite-spinner"></div>
+      <span>Loading more titles...</span>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       MODALS: VIDEO PLAYER, FULL DETAILS, QUICK VIEW
+       ========================================================================== -->
+
+  <!-- Video Player Modal with Multi-Server Switcher -->
+  <div id="player-modal" class="player-modal">
+    <div class="player-top-bar">
+      <div class="player-title-wrap">
+        <h3 id="player-title" class="player-title">Movie Title</h3>
+        <div id="player-meta" class="player-meta"></div>
+      </div>
+      <div class="player-top-actions">
+        <div id="ad-shield-status" class="ad-shield-status active tv-focusable" onclick="Player.toggleShield()" title="Click to toggle Ad &amp; Popup Shield">
+          <i class="fas fa-shield-halved"></i>
+          <span id="ad-shield-text">Ad-Shield: Active (Zero Popups)</span>
+        </div>
+        <button class="player-close-btn tv-focusable" onclick="Player.close()" title="Close Player (Esc)">
+          <i class="fas fa-xmark"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="player-content">
+      <!-- Player Viewport with Auto-Health Loader -->
+      <div id="player-viewport-wrap" class="player-viewport-wrap">
+        <div id="player-loader" class="player-loader">
+          <div class="loader-spinner"></div>
+          <span id="player-loader-text" class="player-loader-text">Checking &amp; selecting working server...</span>
+          <span class="loader-sub">⚡ Automatic Server Health Check &amp; Failover Active</span>
+        </div>
+        <iframe id="player-iframe" class="player-iframe" src="about:blank" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+      </div>
+
+      <!-- Multi-Server Selector with Live Status Indicators -->
+      <div class="player-server-section">
+        <div class="server-section-header">
+          <span class="server-section-label"><i class="fas fa-server"></i> Streaming Servers (Pre-tested for 100% uptime):</span>
+          <button class="auto-failover-btn tv-focusable" onclick="Player.autoFallback()" title="Skip to next verified working server">
+            <i class="fas fa-rotate"></i> Next Working Server
+          </button>
+        </div>
+        <div id="player-server-tabs" class="player-server-tabs"></div>
+      </div>
+
+      <!-- TV Series Season & Episode Selector -->
+      <div id="player-episodes-section" class="player-episodes-section" style="display: none;">
+        <div class="episodes-header">
+          <span class="server-section-label"><i class="fas fa-list-ol"></i> Episodes List</span>
+          <select id="player-season-select" class="season-select tv-focusable" onchange="Player.onSeasonChange(this.value)"></select>
+        </div>
+        <div id="player-episodes-list" class="player-episodes-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Full Details Modal -->
+  <div id="details-modal" class="modal-overlay" onclick="if (event.target === this) Modals.closeDetails()">
+    <div class="details-modal">
+      <div id="details-backdrop" class="details-hero">
+        <div class="details-hero-grad"></div>
+        <button class="modal-close-btn tv-focusable" onclick="Modals.closeDetails()" title="Close Details"><i class="fas fa-xmark"></i></button>
+      </div>
+
+      <div class="details-body">
+        <div class="details-poster-wrap">
+          <img id="details-poster" class="details-poster" src="./assets/logo.svg" alt="Poster"/>
+        </div>
+
+        <div class="details-info">
+          <h2 id="details-title" class="details-title">Title</h2>
+          <span id="details-tagline" class="details-tagline"></span>
+
+          <div id="details-meta" class="details-meta"></div>
+          <div id="details-genres" class="details-genres"></div>
+
+          <p id="details-overview" class="details-overview"></p>
+
+          <div class="details-actions">
+            <button id="details-play-btn" class="btn btn-primary tv-focusable">
+              <i class="fas fa-play"></i> Stream Now
+            </button>
+            <button id="details-watchlist-btn" class="btn btn-secondary tv-focusable">
+              <i class="fas fa-heart"></i> Add to Watchlist
+            </button>
+            <button id="details-trailer-btn" class="btn btn-outline tv-focusable">
+              <i class="fas fa-video"></i> Trailer
+            </button>
+          </div>
+
+          <!-- Cast Section -->
+          <h3 class="details-section-title">Top Cast</h3>
+          <div id="details-cast" class="details-cast"></div>
+
+          <!-- Similar Recommendations -->
+          <h3 class="details-section-title">Recommended Titles</h3>
+          <div id="details-similar" class="details-similar"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Preview Modal -->
+  <div id="quick-modal" class="modal-overlay" onclick="if (event.target === this) Modals.closeQuick()">
+    <div class="details-modal" style="max-width: 600px;">
+      <div style="position: relative; aspect-ratio: 16/9; overflow: hidden;">
+        <img id="quick-backdrop" style="width:100%; height:100%; object-fit: cover;" src="" alt=""/>
+        <div class="details-hero-grad"></div>
+        <button class="modal-close-btn tv-focusable" onclick="Modals.closeQuick()" title="Close Quick Preview"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div style="padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+        <h3 id="quick-title" style="font-size: 1.4rem; font-weight: 800;"></h3>
+        <div id="quick-meta" style="display: flex; gap: 8px;"></div>
+        <p id="quick-desc" style="font-size: 0.88rem; color: var(--text-sub); line-height: 1.5;"></p>
+        <div style="display: flex; gap: 10px; margin-top: 8px;">
+          <button id="quick-play-btn" class="btn btn-primary btn-sm tv-focusable"><i class="fas fa-play"></i> Play</button>
+          <button id="quick-more-btn" class="btn btn-secondary btn-sm tv-focusable"><i class="fas fa-info-circle"></i> Full Details</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav class="mobile-nav">
+    <div class="mobile-nav-item active" data-tab="home">
+      <i class="fas fa-house"></i>
+      <span>Home</span>
+    </div>
+    <div class="mobile-nav-item" data-tab="movies">
+      <i class="fas fa-film"></i>
+      <span>Movies</span>
+    </div>
+    <div class="mobile-nav-item" data-tab="tv">
+      <i class="fas fa-tv"></i>
+      <span>Series</span>
+    </div>
+    <div class="mobile-nav-item" data-tab="livetv">
+      <i class="fas fa-broadcast-tower"></i>
+      <span>Live TV</span>
+    </div>
+    <div class="mobile-nav-item" data-tab="watchlist">
+      <i class="fas fa-heart"></i>
+      <span>Watchlist</span>
+    </div>
+  </nav>
+
+  <!-- Floating TV Remote Hint Bar (Smart TV Mode) -->
+  <div id="tv-remote-hint" class="tv-remote-hint">
+    <span><span class="tv-key-badge">🡰 🡲 🡱 🡳</span> Navigate</span>
+    <span><span class="tv-key-badge">OK / Enter</span> Select</span>
+    <span><span class="tv-key-badge">Back / Esc</span> Return</span>
+    <span><span class="tv-key-badge">/</span> Search</span>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-brand">
+      <img src="./assets/logo.svg" alt="EF Movie" style="width: 24px; height: 24px;"/>
+      <span>EF MOVIE STREAMING PLATFORM</span>
+    </div>
+    <p>Powered by TMDB API & Multi-Source Fast Streaming Servers. Built with ultra-high optimization for Smart TVs, PC, and Mobile.</p>
+    <div class="footer-links">
+      <a href="#" onclick="App.switchTab('home')">Home</a>
+      <a href="#" onclick="App.switchTab('movies')">Movies</a>
+      <a href="#" onclick="App.switchTab('tv')">TV Series</a>
+      <a href="#" onclick="App.switchTab('livetv')">Live TV</a>
+      <a href="#" onclick="App.switchTab('watchlist')">Watchlist</a>
+      <a href="#" onclick="TVNav.toggleTVMode()">Toggle TV Mode</a>
+    </div>
+  </footer>
+
+  <!-- Core Application Scripts -->
+  <script src="./js/tv-navigation.js"></script>
+  <script src="./js/player.js"></script>
+  <script src="./js/app.js"></script>
+</body>
+</html>

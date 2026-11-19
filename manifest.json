@@ -1,0 +1,36 @@
+{
+  "name": "EF Movie — Ultimate Cinema & TV Streaming",
+  "short_name": "EF Movie",
+  "description": "Ultra-fast streaming platform for movies, TV series, and live television, optimized for Smart TVs, desktops, and mobile devices.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#06080c",
+  "theme_color": "#06080c",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "./assets/logo.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["entertainment", "video", "movies"],
+  "shortcuts": [
+    {
+      "name": "Trending Movies",
+      "url": "./index.html?tab=movies",
+      "description": "Watch trending blockbusters"
+    },
+    {
+      "name": "TV Series",
+      "url": "./index.html?tab=tv",
+      "description": "Binge watch top rated series"
+    },
+    {
+      "name": "Live TV",
+      "url": "./index.html?tab=livetv",
+      "description": "Watch live broadcast television"
+    }
+  ]
+}
