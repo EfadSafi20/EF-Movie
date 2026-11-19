@@ -155,6 +155,18 @@
     }
   });
 
+  // Layer 4b: Returning focus from popup tab immediately sweeps away residual clickjack overlays
+  window.addEventListener('focus', function () {
+    const playerModal = document.getElementById('player-modal');
+    if (playerModal && playerModal.classList.contains('active')) {
+      periodicCleanSweep();
+      const iframe = document.getElementById('player-iframe');
+      if (iframe) {
+        try { iframe.focus(); } catch (e) {}
+      }
+    }
+  });
+
   /* ==========================================================================
      LAYER 5: MUTATION OBSERVER — REMOVE INVISIBLE FULLSCREEN OVERLAYS
      Strips rogue overlay <div> elements inserted to hijack play clicks
